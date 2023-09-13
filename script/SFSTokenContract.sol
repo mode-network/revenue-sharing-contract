@@ -9,6 +9,6 @@ contract SFSTokenContractScript is Script {
     function run() external {
 
         vm.broadcast();
-        new SFSTokenContract("SFS Token", "SFSTOK", address(bytes20(bytes("0x2a0a18fe492d4dc4d0a3db55bd01cbcc938b2b02"))));
+        new SFSTokenContract("SFS Token", "SFSTOK", address(bytes20(bytes("0xBBd707815a7F7eb6897C7686274AFabd7B579Ff6"))));
     }
 }
