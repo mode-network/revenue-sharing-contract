@@ -1,15 +1,15 @@
 pragma solidity ^0.8.16;
 
-import "./turnstile.sol";
+import "./FeeSharing.sol";
 import "openzeppelin/token/ERC20/ERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 
 contract CSRTokenContract is ERC20, Ownable {
-    address turnstile;
+    address feeshare;
 
-    constructor(string memory _name, string memory _symbol, address _turnstile)
+    constructor(string memory _name, string memory _symbol, address _feeshare)
       ERC20(_name, _symbol){
-        turnstile = _turnstile;
+        feeshare = _feeshare;
         _mint(msg.sender, 1000);
     }
 
@@ -18,10 +18,10 @@ contract CSRTokenContract is ERC20, Ownable {
     }
 
     function register(address to) public{
-        Turnstile(turnstile).register(to);
+        FeeSharing(feeshare).register(to);
     }
 
     function assign(uint256 id) public{
-        Turnstile(turnstile).assign(id);
+        FeeSharing(feeshare).assign(id);
     }
 }

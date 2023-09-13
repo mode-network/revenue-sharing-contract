@@ -11,7 +11,7 @@ Create `.env` file and set Ethereum RPC at `MODE_RPC_URL` and deployer private k
 Run
 ```
 source .env
-forge script script/Turnstile.s.sol:TurnstileScript --rpc-url $MODE_RPC_URL --broadcast -vvvv
+forge script script/FeeSharing.s.sol:FeeSharingScript --rpc-url $MODE_RPC_URL --broadcast -vvvv
 ```
 
 ## Test

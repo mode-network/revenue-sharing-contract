@@ -8,7 +8,7 @@ import "openzeppelin/utils/Counters.sol";
 /// @dev Every contract is responsible to register itself in the constructor by calling `register(address)`.
 ///      If contract is using proxy pattern, it's possible to register retroactively, however past fees will be lost.
 ///      Recipient withdraws fees by calling `withdraw(uint256,address,uint256)`.
-contract Turnstile is Ownable, ERC721Enumerable {
+contract FeeSharing is Ownable, ERC721Enumerable {
     using Counters for Counters.Counter;
 
     struct NftData {
@@ -61,7 +61,7 @@ contract Turnstile is Ownable, ERC721Enumerable {
         _;
     }
 
-    constructor() ERC721("Turnstile", "Turnstile") {}
+    constructor() ERC721("FeeSharing", "FeeSharing") {}
 
     /// @notice Returns current value of counter used to tokenId of new minted NFTs
     /// @return current counter value
