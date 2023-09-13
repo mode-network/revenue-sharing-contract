@@ -4,7 +4,7 @@ import "./FeeSharing.sol";
 import "openzeppelin/token/ERC20/ERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 
-contract CSRTokenContract is ERC20, Ownable {
+contract SFSTokenContract is ERC20, Ownable {
     address feeshare;
 
     constructor(string memory _name, string memory _symbol, address _feeshare)
