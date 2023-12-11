@@ -3,12 +3,14 @@ pragma solidity ^0.8.16;
 
 import "./FeeSharing.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract SFSTokenContract is ERC20, Ownable {
     address feeshare;
-
-    constructor(string memory _name, string memory _symbol, address _feeshare)
-      ERC20(_name, _symbol){
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _feeshare
+    ) ERC20(_name, _symbol) Ownable(msg.sender) {
         feeshare = _feeshare;
         _mint(msg.sender, 1000);
     }
