@@ -37,6 +37,7 @@ contract FeeSharing is ERC721 {
     error AlreadyRegistered();
     error Unregistered();
     error InvalidRecipient();
+    error InvalidFeesRecipient();
     error InvalidTokenId();
     error NothingToWithdraw();
     error NothingToDistribute();
@@ -105,7 +106,7 @@ contract FeeSharing is ERC721 {
         if (_recipient == address(0)) revert InvalidRecipient();
 
         tokenId = _tokenIdTracker.current();
-        _mint(_recipient, tokenId);
+        _safeMint(_recipient, tokenId);
         _tokenIdTracker.increment();
 
         emit Register(smartContract, _recipient, tokenId);
@@ -145,6 +146,8 @@ contract FeeSharing is ERC721 {
         onlyNftOwner(_tokenId)
         returns (uint256)
     {
+        if (_recipient == address(0)) revert InvalidFeesRecipient();
+
         uint256 earnedFees = balances[_tokenId];
 
         if (earnedFees <= 1 || _amount == 0) revert NothingToWithdraw();
