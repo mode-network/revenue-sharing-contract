@@ -1,19 +1,17 @@
 pragma solidity 0.8.17;
 
-import "openzeppelin/access/Ownable.sol";
-import "openzeppelin/token/ERC721/extensions/ERC721Enumerable.sol";
+import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/utils/Counters.sol";
 
 /// @notice Implementation of CIP-001 https://github.com/Canto-Improvement-Proposals/CIPs/blob/main/CIP-001.md
 /// @dev Every contract is responsible to register itself in the constructor by calling `register(address)`.
 ///      If contract is using proxy pattern, it's possible to register retroactively, however past fees will be lost.
 ///      Recipient withdraws fees by calling `withdraw(uint256,address,uint256)`.
-contract FeeSharing is Ownable, ERC721Enumerable {
+contract FeeSharing is ERC721 {
     using Counters for Counters.Counter;
 
     struct NftData {
         uint256 tokenId;
-        bool registered;
         uint256 balanceUpdatedBlock;
     }
 
@@ -28,7 +26,7 @@ contract FeeSharing is Ownable, ERC721Enumerable {
     event Register(address smartContract, address recipient, uint256 tokenId);
     event Assign(address smartContract, uint256 tokenId);
     event Withdraw(uint256 tokenId, address recipient, uint256 feeAmount);
-    event DistributeFees(
+    event DistributeFee(
         uint256 tokenId,
         uint256 feeAmount,
         address smartContract,
@@ -61,7 +59,9 @@ contract FeeSharing is Ownable, ERC721Enumerable {
         _;
     }
 
-    constructor() ERC721("FeeSharing", "FeeSharing") {}
+    constructor() ERC721("FeeSharing", "FeeSharing") {
+        _tokenIdTracker.increment();
+    }
 
     /// @notice Returns current value of counter used to tokenId of new minted NFTs
     /// @return current counter value
@@ -82,7 +82,7 @@ contract FeeSharing is Ownable, ERC721Enumerable {
     /// @param _smartContract address of the smart contract
     /// @return true if smart contract is registered to collect fees, false otherwise
     function isRegistered(address _smartContract) public view returns (bool) {
-        return feeRecipient[_smartContract].registered;
+        return feeRecipient[_smartContract].tokenId != 0;
     }
 
     // @notice Returns last block where reward was calculated and granted to the smart contract.
@@ -112,7 +112,6 @@ contract FeeSharing is Ownable, ERC721Enumerable {
 
         feeRecipient[smartContract] = NftData({
             tokenId: tokenId,
-            registered: true,
             balanceUpdatedBlock: block.number
         });
     }
@@ -130,7 +129,6 @@ contract FeeSharing is Ownable, ERC721Enumerable {
 
         feeRecipient[smartContract] = NftData({
             tokenId: _tokenId,
-            registered: true,
             balanceUpdatedBlock: block.number
         });
 
@@ -149,8 +147,8 @@ contract FeeSharing is Ownable, ERC721Enumerable {
     {
         uint256 earnedFees = balances[_tokenId];
 
-        if (earnedFees == 0 || _amount == 0) revert NothingToWithdraw();
-        if (_amount > earnedFees) _amount = earnedFees;
+        if (earnedFees <= 1 || _amount == 0) revert NothingToWithdraw();
+        if (_amount >= earnedFees) _amount = earnedFees - 1;
 
         balances[_tokenId] = earnedFees - _amount;
 
@@ -161,16 +159,18 @@ contract FeeSharing is Ownable, ERC721Enumerable {
         return _amount;
     }
 
-    /// @notice Distributes collected fees to the smart contract. Only callable by owner.
+    /// @notice Distributes collected fees to the smart contract.
     /// @param _tokenId NFT that earned fees
-    function distributeFees(uint256 _tokenId, address _smartContract, uint256 _blockNumber) public onlyOwner payable {
+    function distributeFees(uint256 _tokenId, address _smartContract, uint256 _blockNumber) public payable {
         if (msg.value == 0) revert NothingToDistribute();
+        if (!_exists(_tokenId)) revert InvalidTokenId();
+        if (feeRecipient[_smartContract].tokenId != _tokenId) revert Unregistered();
 
         if (_blockNumber <= getBalanceUpdatedBlock(_smartContract)) revert BalanceUpdatedBlockOverlap();
         if (_blockNumber > block.number) revert InvalidBlockNumber();
 
         balances[_tokenId] += msg.value;
         feeRecipient[_smartContract].balanceUpdatedBlock = _blockNumber;
-        emit DistributeFees(_tokenId, msg.value, _smartContract, _blockNumber);
+        emit DistributeFee(_tokenId, msg.value, _smartContract, _blockNumber);
     }
 }
