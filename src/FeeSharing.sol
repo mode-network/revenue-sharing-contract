@@ -61,7 +61,9 @@ contract FeeSharing is Ownable, ERC721Enumerable {
         _;
     }
 
-    constructor() ERC721("FeeSharing", "FeeSharing") {}
+    constructor() ERC721("FeeSharing", "FeeSharing") {
+        _tokenIdTracker.increment();
+    }
 
     /// @notice Returns current value of counter used to tokenId of new minted NFTs
     /// @return current counter value
