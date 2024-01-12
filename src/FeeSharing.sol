@@ -61,7 +61,9 @@ contract FeeSharing is Ownable, ERC721Enumerable {
         _;
     }
 
-    constructor() ERC721("FeeSharing", "FeeSharing") {}
+    constructor() ERC721("FeeSharing", "FeeSharing") {
+        _tokenIdTracker.increment();
+    }
 
     /// @notice Returns current value of counter used to tokenId of new minted NFTs
     /// @return current counter value
@@ -165,6 +167,8 @@ contract FeeSharing is Ownable, ERC721Enumerable {
     /// @param _tokenId NFT that earned fees
     function distributeFees(uint256 _tokenId, address _smartContract, uint256 _blockNumber) public onlyOwner payable {
         if (msg.value == 0) revert NothingToDistribute();
+        if (!_exists(_tokenId)) revert InvalidTokenId();
+        if (feeRecipient[_smartContract].tokenId != _tokenId) revert Unregistered();
 
         if (_blockNumber <= getBalanceUpdatedBlock(_smartContract)) revert BalanceUpdatedBlockOverlap();
         if (_blockNumber > block.number) revert InvalidBlockNumber();
