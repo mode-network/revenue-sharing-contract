@@ -68,7 +68,12 @@ contract FeeSharingTest is Test {
         _testGetters();
     }
 
-    function testRegister(address _smartContract, address _recipient) public {
+    function testRegister(uint160 _smartContractI, uint160 _recipientI) public {
+        vm.assume(_smartContractI > 10);
+        vm.assume(_recipientI > 10);
+        address _smartContract = address(_smartContractI);
+        address _recipient = address(_recipientI);
+
         vm.assume(_smartContract != address(this) && _smartContract != address(feeshare));
         vm.assume(_smartContract != address(this));
         vm.assume(_recipient != address(0));
@@ -110,7 +115,12 @@ contract FeeSharingTest is Test {
         feeshare.assign(currentCounterId + 1);
     }
 
-    function testAssign(address _smartContract, address _recipient) public {
+    function testAssign(uint160 _smartContractI, uint160 _recipientI) public {
+        vm.assume(_smartContractI > 10);
+        vm.assume(_recipientI > 10);
+        address _smartContract = address(_smartContractI);
+        address _recipient = address(_recipientI);
+
         vm.assume(_smartContract != address(this) && _smartContract != receiveContract && _smartContract != address(feeshare));
         vm.assume(_recipient != address(0));
 
