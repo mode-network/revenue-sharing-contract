@@ -83,7 +83,9 @@ contract FeeDistributor is Ownable, ReentrancyGuard {
 
         // Check that the given parameters match the given Proof
         bytes32 node = keccak256(
-            abi.encodePacked(tokenId, epoch, index, msg.sender, amount)
+            bytes.concat(
+                keccak256(abi.encode(tokenId, epoch, index, msg.sender, amount))
+            )
         );
         if (!MerkleProof.verify(merkleProof, merkleRootForEpoch[epoch], node)) {
             revert InvalidProof();
